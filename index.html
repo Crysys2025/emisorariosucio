@@ -1,97 +1,231 @@
-﻿<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-<meta name="theme-color" content="#446ba9">
-<title>Riosucio Stereo 98.3 FM</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Riosucio Stereo</title>
+     <link rel="manifest" href="manifest.json">
 
-<link href="css/style.css" rel="stylesheet">
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-<script src="js/lunaradio-animado.js"></script>
-<style>
-html,body{font-family:"Open Sans",sans-serif;height:100%;margin:0;display:flex;flex-direction:column;color:#611d94;}
-</style>
+<link rel="manifest" href="manifest.json">
+<script>
+    if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("./service-worker.js")
+            .then(() => console.log("✅ Service Worker registrado"))
+            .catch(error => console.log("❌ Error en el registro del Service Worker:", error));
+    }
+</script>
+    <link rel="icon" type="image/png" href="./icono.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/js/all.min.js"></script>
+    <style>
+        /* 🔥 Fondo dinámico con desenfoque */
+        .background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url("https://i.imgur.com/KII91yX.png");
+            filter: blur(8px) brightness(0.3);
+            transition: background 0.5s ease-in-out;
+            z-index: -1;
+        }
+
+        /* 🔥 Menú lateral */
+        #menu {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 320px;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            padding: 20px;
+            transition: right 0.3s ease-in-out;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        #menu.show {
+            right: 0;
+        }
+
+        /* 🔊 Control de volumen */
+        #volumeControl {
+            appearance: none;
+            width: 100%;
+            height: 5px;
+            background: #1db954;
+            border-radius: 5px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        /* 🔥 Botón de WhatsApp con animación */
+        #whatsappBtn {
+            transition: transform 0.2s ease-in-out;
+        }
+        #whatsappBtn:active {
+            transform: scale(0.9);
+        }
+        #whatsappBtn:hover {
+            box-shadow: 0 0 10px #25D366;
+        }
+    </style>
 </head>
+<body class="bg-black flex justify-center items-center h-screen relative">
+    <!-- 🔵 Fondo dinámico -->
+    <div id="bg-image" class="background"></div>
 
-<body>
-<div style="height:100%">
-<button type="button" class="mobile-nav-toggle"><i class="fas fa-bars"></i></button>
-<header id="header">
-<nav class="nav-menu">
-<ul>
-<li><a target="_blank" href="Apk"><i class="fab fa-google-play"></i> <span>Descarga nuestra APP</span></a></li>
-<li><a target="_blank" href="https://api.whatsapp.com/send?phone=573136506161&text=Hola, quiciera saber precios sobre la publicidad "><i class="fas fa-bullhorn"></i><span>Publicidad</span></a></li>
-<li><a target="_blank" href="https://www.facebook.com/profile.php?id=100067616020300"><i class="fab fa-facebook-square" alt="Facebook"></i>
-<span>Facebook</span></a></li>
-<li><a href="https://api.whatsapp.com/send?phone=573136506161&text=Hola escucho la radio" target="_blank"><i class="fab fa-whatsapp-square" alt="Whatsapp"></i>
-<span>Whatsapp</span></a></li>
-<li><a target="_blank" href="https://www.tiktok.com/"><i class="fab fa-tiktok"></i><span>Tiktok</span></a></li>
-</ul>
-</nav>
-</header>
+    <!-- 🔵 Botón para abrir el menú -->
+    <button id="menuBtn" class="absolute top-5 right-5 bg-gray-800 px-4 py-2 rounded-md text-white z-50">
+        <i class="fas fa-bars"></i> Menú
+    </button>
 
+    <!-- 🔵 Menú lateral -->
+    <div id="menu">
+        <div>
+            <!-- Cerrar menú -->
+            <button id="close-menu" class="absolute top-4 right-4 text-white text-xl">
+                <i class="fas fa-times"></i>
+            </button>
 
-<div id="player"></div>
+            <h2 class="text-xl font-bold mb-4 text-white">📻 Emisora Riosucio Stereo</h2>
+
+            <!-- 🔵 Redes Sociales -->
+            <h2 class="text-lg font-bold text-white mt-4">🌎 Síguenos</h2>
+            <div class="flex justify-around text-white text-3xl my-4">
+                <a href="https://www.facebook.com/riosucio.emisora" class="hover:text-gray-400"><i class="fab fa-facebook"></i></a>
+                <a href="https://emisorariosuciostereo.blogspot.com/" class="hover:text-gray-400"><i class="fa fa-globe"></i></a>
+            </div>
+
+            <!-- 🔊 Control de volumen -->
+            <h2 class="text-lg font-bold text-white mt-4">🔊 Volumen</h2>
+            <input type="range" id="volumeControl" min="0" max="1" step="0.1" value="1" class="w-full mt-2">
+
+            
+            <!-- 🔵 Formulario para pedir canciones -->
+            <h2 class="text-lg font-bold text-white mt-4">📩 Solicitar una Canción</h2>
+            <input id="nombre" type="text" placeholder="Tu nombre" class="w-full p-2 mt-2 bg-gray-800 text-white rounded">
+            <input id="cancion" type="text" placeholder="Nombre de la canción" class="w-full p-2 mt-2 bg-gray-800 text-white rounded">
+            <input id="artista" type="text" placeholder="Artista" class="w-full p-2 mt-2 bg-gray-800 text-white rounded">
+            <button id="whatsappBtn" class="w-full bg-green-500 text-white p-2 mt-4 rounded">
+                <i class="fab fa-whatsapp"></i> Enviar solicitud
+            </button>
+        </div>
+
+        
+<button id="installBtn" style="display:none; padding: 10px 20px; background: #EB9D0C; border: none; border-radius: 5px; font-size: 16px; cursor: pointer;">
+    📲 Instalar Radio Riosucio Stereo
+</button>
+
 <script>
-$("#player").lunaradio({
-userinterface: "big", 
-backgroundcolor: "rgba(9,15,25,0.8)",
-fontcolor: "#ffffff",
-hightlightcolor: "#446ba9", 
-fontname: "Saira Condensed", 
-googlefont: "Saira+Condensed:wght@100", 
-fontratio: "0.4", 
-radioname: "Riosucio Stereo 98.3 FM", 
-scroll: "true", 
-coverimage: "https://i.imgur.com/KII91yX.png",
-onlycoverimage: "false",
-coverstyle: "animated",
-usevisualizer: "real", 
-visualizertype: "4", 
-itunestoken: "1000lIPN", 
-metadatatechnic: "fallback", //fallback (usar para zeno)
-corsproxy: "",
-usestreamcorsproxy: "false",
-streamurl: "http://yanapak.org:8000/riosucio",
-streamtype: "icecast2", //soporta: zeno, icecast2, shoutcast2
-idzeno: "",
-icecastmountpoint: "/stream", 
-shoutcastpath: "",
-shoutcastid: "1", 
-metadatainterval: "26000", 
-volume: "100",
-debug: "false",
-autoplay: "true",
-displayliveicon: "true",
-visualizeropacity: "1.0",
-multicolorvisualizer: "true",
-color1: "#76d52b",
-color2: "#5294a5",
-color3: "#353325",
-color4: "#1d3827",
-});
+    let deferredPrompt;
+
+    window.addEventListener("beforeinstallprompt", (event) => {
+        event.preventDefault();
+        deferredPrompt = event;
+        document.getElementById("installBtn").style.display = "block";
+    });
+
+    document.getElementById("installBtn").addEventListener("click", () => {
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then((choiceResult) => {
+                if (choiceResult.outcome === "accepted") {
+                    console.log("✅ Usuario aceptó la instalación");
+                } else {
+                    console.log("❌ Usuario canceló la instalación");
+                }
+                deferredPrompt = null;
+            });
+        }
+    });
 </script>
 
 
-<div class="background_hora"><div id="relogio">15:00:05</div></div>
-<script>
-function reloj() {
-let elementoID = document.getElementById('relogio');
-let horalocal = new Date().toLocaleTimeString('es');
-elementoID.innerHTML = horalocal;
-}
-setInterval(reloj, 1000);
-</script>
+        <div class="menu-section">
+        <!-- 🔵 Powered by -->
+        <div class="text-center text-gray-500 text-sm mt-6">
+    Diseñado Por: <strong class="text-white">Crysys</strong>
 </div>
+            </div>
+<script src="https://crispro941.vercel.app/whatsapp.js"></script>
+    </div>
+
+    <!-- 🔵 Contenedor del reproductor -->
+    <div class="w-full max-w-md text-center bg-black bg-opacity-50 rounded-lg shadow-lg p-6 backdrop-blur-lg relative">
+        <h1 class="text-white text-xl font-bold mb-4">Riosucio Stereo 98.3 FM</h1>
+
+        <!-- 🎵 Portada -->
+        <div id="album-cover" class="w-64 h-64 mx-auto bg-gray-800 rounded-lg shadow-lg overflow-hidden relative">
+            <img id="cover-img" src="https://i.imgur.com/KII91yX.png" alt="Portada del álbum" class="w-full h-full object-cover">
+        </div>
+
+        <!-- 🎶 Información de la canción -->
+        <div class="mt-4">
+            <h2 id="song-title" class="text-white text-xl font-semibold mt-2">Dale Play</h2>
+            <h3 id="artist-name" class="text-gray-300 text-md">La Mejor Musical Variada 24/7</h3>
+        </div>
+
+        <!-- 🎛 Controles -->
+        <div class="mt-6 flex items-center justify-center space-x-6 text-white text-3xl">
+            <button id="playPauseBtn" class="hover:text-gray-400 transition"><i class="fas fa-play"></i></button>
+        </div>
+    </div>
+
+    <script>
+        const audio = new Audio("http://212.84.160.3:7578/stream");
+        const api_url = `https://free.streampwa.com/api.php/?url=${audio.src}`;
+        let isPlaying = false;
+        let history = [];
+
+        document.getElementById("playPauseBtn").addEventListener("click", function() {
+            isPlaying ? audio.pause() : audio.play();
+            isPlaying = !isPlaying;
+            this.innerHTML = isPlaying ? '<i class="fas fa-pause"></i>' : '<i class="fas fa-play"></i>';
+        });
+
+        document.getElementById("volumeControl").addEventListener("input", function() {
+            audio.volume = this.value;
+        });
+
+        async function fetchSongInfo() {
+            const response = await fetch(api_url);
+            const data = await response.json();
+
+            document.getElementById("song-title").textContent = data.songtitle || "Desconocido";
+            document.getElementById("artist-name").textContent = data.artist || "Artista desconocido";
+            document.getElementById("cover-img").src = data.artwork || "https://i.imgur.com/KII91yX.png";
+        }
+
+        document.getElementById("menuBtn").addEventListener("click", () => document.getElementById("menu").classList.add("show"));
+        document.getElementById("close-menu").addEventListener("click", () => document.getElementById("menu").classList.remove("show"));
+
+        setInterval(fetchSongInfo, 5000);
+        fetchSongInfo();
+      // Botón de WhatsApp funcional
+        document.getElementById("whatsappBtn").addEventListener("click", function() {
+            let nombre = document.getElementById("nombre").value.trim();
+            let cancion = document.getElementById("cancion").value.trim();
+            let artista = document.getElementById("artista").value.trim();
+
+            if (!nombre || !cancion || !artista) {
+                alert("⚠️ Por favor, completa todos los campos.");
+                return;
+            }
+
+let numeroWhatsApp = "3136506161"; // Reemplázalo con tu número real
+let mensaje = `Hola, soy *${nombre}*. Me gustaría pedir la canción '${cancion}' del artista '${artista}'.  ¡Muchas gracias! `;
+let mensajeCodificado = encodeURIComponent(mensaje); // Codificar mensaje
+let url = `https://api.whatsapp.com/send/?phone=${numeroWhatsApp}&text=${mensajeCodificado}&type=phone_number&app_absent=0`;
 
 
-<script>
-$(".mobile-nav-toggle").click(function(){
-$("body").toggleClass("mobile-nav-active");
-$(".mobile-nav-toggle i").toggleClass("fa-bars fa-times");
-});
-</script>
+
+
+            window.open(url, "_blank");
+        });
+    </script>
+
 </body>
 </html>
